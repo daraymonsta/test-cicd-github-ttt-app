@@ -23,14 +23,15 @@ jobs:
           username: ${{ secrets.TTT_APP_EC2_USER }}
           key: ${{ secrets.TTT_APP_EC2_SSH_KEY }}
           script: |
-            echo remove app repo from root if exists
             if [ -d "repo" ]; then
                 echo repo folder exists, so pull changes
+                cd repo
                 git pull origin main
             else
                 echo repo folder does not exist, so clone repo
                 git clone https://github.com/daraymonsta/test-cicd-github-ttt-app repo
+                cd repo
             fi
-            cd repo/app
+            cd app
             npm ci --omit=dev
             pm2 restart ttt-app || pm2 start npm --name ttt-app -- start
