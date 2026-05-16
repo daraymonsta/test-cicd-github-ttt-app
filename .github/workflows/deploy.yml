@@ -1,0 +1,36 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.TTT_APP_EC2_HOST }}
+          username: ${{ secrets.TTT_APP_EC2_USER }}
+          key: ${{ secrets.TTT_APP_EC2_SSH_KEY }}
+          script: |
+            echo remove app repo from root if exists
+            if [ -d "repo" ]; then
+                echo repo folder exists, so pull changes
+                git pull origin main
+            else
+                echo repo folder does not exist, so clone repo
+                git clone https://github.com/daraymonsta/test-cicd-github-ttt-app repo
+            fi
+            cd repo/app
+            npm ci --omit=dev
+            pm2 restart ttt-app || pm2 start npm --name ttt-app -- start
