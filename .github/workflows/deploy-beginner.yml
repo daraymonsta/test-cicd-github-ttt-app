@@ -1,8 +1,9 @@
-name: Deploy
+name: Deploy Beginner - SSH into EC2 and Git Pull
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -23,6 +24,9 @@ jobs:
           username: ${{ secrets.TTT_APP_EC2_USER }}
           key: ${{ secrets.TTT_APP_EC2_SSH_KEY }}
           script: |
+            echo stop and remove any container that is currently running on port 3000
+            docker ps -q --filter "publish=3000" | xargs -r docker rm -f
+            
             if [ -d "repo" ]; then
                 echo repo folder exists, so pull changes
                 cd repo
