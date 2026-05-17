@@ -39,3 +39,8 @@ jobs:
             cd app
             npm ci --omit=dev
             pm2 restart ttt-app || pm2 start npm --name ttt-app -- start
+
+            echo configure pm2 to start on system boot
+            pm2 save
+            sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ${{ secrets.TTT_APP_EC2_USER }} --hp /home/${{ secrets.TTT_APP_EC2_USER }}
+            

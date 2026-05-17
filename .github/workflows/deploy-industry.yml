@@ -63,8 +63,10 @@ jobs:
           username: ${{ secrets.TTT_APP_EC2_USER }}
           key: ${{ secrets.TTT_APP_EC2_SSH_KEY }}
           script: |
-            echo stop any pm2 process running
-            pm2 kill
+            echo configure pm2 to not start on system boot
+            pm2 delete all || true
+            pm2 save
+            sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 unstartup systemd -u ${{ secrets.TTT_APP_EC2_USER }} --hp /home/${{ secrets.TTT_APP_EC2_USER }}
             
             echo "${{ secrets.GHCR_READ_PAT }}" | docker login ghcr.io \
               -u "${{ github.repository_owner }}" \
